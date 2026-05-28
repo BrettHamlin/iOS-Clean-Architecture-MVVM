@@ -22,8 +22,8 @@ class MoviesListViewModelTests: XCTestCase {
 
         typealias ExecuteBlock = (
             SearchMoviesUseCaseRequestValue,
-            (MoviesPage) -> Void,
-            (Result<MoviesPage, Error>) -> Void
+            @escaping (MoviesPage) -> Void,
+            @escaping (Result<MoviesPage, Error>) -> Void
         ) -> Void
 
         lazy var _execute: ExecuteBlock = { _, _, _ in
@@ -313,6 +313,10 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertNotNil(cell.favoriteButton)
         let cellActions = cell.favoriteButton.actions(forTarget: cell, forControlEvent: .touchUpInside) ?? []
         XCTAssertTrue(cellActions.contains("didTapFavoriteButton"))
+        var favoriteTapCallCount = 0
+        cell.onFavoriteButtonTapped = { favoriteTapCallCount += 1 }
+        cell.onFavoriteButtonTapped?()
+        XCTAssertEqual(favoriteTapCallCount, 1)
 
         let viewController = MoviesListViewController()
         let control = viewController.favoritesFilterControl

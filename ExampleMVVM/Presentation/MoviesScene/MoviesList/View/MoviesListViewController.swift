@@ -29,7 +29,14 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         with viewModel: MoviesListViewModel,
         posterImagesRepository: PosterImagesRepository?
     ) -> MoviesListViewController {
-        let view = MoviesListViewController.instantiateViewController()
+        let view: MoviesListViewController
+        if Bundle.main.path(forResource: defaultFileName, ofType: "storyboardc") != nil {
+            let storyboard = UIStoryboard(name: defaultFileName, bundle: nil)
+            view = storyboard.instantiateInitialViewController() as? MoviesListViewController
+                ?? MoviesListViewController()
+        } else {
+            view = MoviesListViewController()
+        }
         view.viewModel = viewModel
         view.posterImagesRepository = posterImagesRepository
         return view
@@ -37,6 +44,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupProgrammaticViewIfNeeded()
         setupViews()
         setupBehaviours()
         bind(to: viewModel)
@@ -66,6 +74,42 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     }
 
     // MARK: - Private
+
+    private func setupProgrammaticViewIfNeeded() {
+        guard contentView == nil else { return }
+
+        contentView = view
+        moviesListContainer = UIView()
+        suggestionsListContainer = UIView()
+        searchBarContainer = UIView()
+        emptyDataLabel = UILabel()
+
+        [searchBarContainer, moviesListContainer, suggestionsListContainer, emptyDataLabel].forEach {
+            guard let subview = $0 else { return }
+            subview.translatesAutoresizingMaskIntoConstraints = false
+            view.addSubview(subview)
+        }
+
+        NSLayoutConstraint.activate([
+            searchBarContainer.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            searchBarContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            searchBarContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            searchBarContainer.heightAnchor.constraint(equalToConstant: 56),
+
+            emptyDataLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            emptyDataLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+
+            moviesListContainer.topAnchor.constraint(equalTo: searchBarContainer.bottomAnchor),
+            moviesListContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            moviesListContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            moviesListContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            suggestionsListContainer.topAnchor.constraint(equalTo: searchBarContainer.bottomAnchor),
+            suggestionsListContainer.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            suggestionsListContainer.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            suggestionsListContainer.bottomAnchor.constraint(equalTo: view.bottomAnchor)
+        ])
+    }
 
     private func setupViews() {
         title = viewModel.screenTitle
