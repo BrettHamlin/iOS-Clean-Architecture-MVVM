@@ -14,3 +14,8 @@
 "No internet connection" = "No internet connection";
 "Failed loading movies" = "Failed loading movies";
 "Search Movies" = "Search Movies";
+"Filter" = "Filter";
+"All" = "All";
+"Favorites" = "Favorites";
+"Add to Favorites" = "Add to Favorites";
+"Remove from Favorites" = "Remove from Favorites";

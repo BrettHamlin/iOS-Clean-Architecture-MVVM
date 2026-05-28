@@ -21,18 +21,24 @@ protocol MoviesListViewModelInput {
     func showQueriesSuggestions()
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
+    func didToggleFavorite(at index: Int)
+    func didToggleFilter()
 }
 
 protocol MoviesListViewModelOutput {
+    static var filterTitle: String { get }
     var items: Observable<[MoviesListItemViewModel]> { get } /// Also we can calculate view model items on demand:  https://github.com/kudoleh/iOS-Clean-Architecture-MVVM/pull/10/files
     var loading: Observable<MoviesListViewModelLoading?> { get }
     var query: Observable<String> { get }
     var error: Observable<String> { get }
+    var isShowingFavorites: Observable<Bool> { get }
     var isEmpty: Bool { get }
     var screenTitle: String { get }
     var emptyDataTitle: String { get }
     var errorTitle: String { get }
     var searchBarPlaceholder: String { get }
+    var allMoviesFilterTitle: String { get }
+    var favoriteMoviesFilterTitle: String { get }
 }
 
 typealias MoviesListViewModel = MoviesListViewModelInput & MoviesListViewModelOutput
@@ -48,20 +54,25 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
     var nextPage: Int { hasMorePages ? currentPage + 1 : currentPage }
 
     private var pages: [MoviesPage] = []
+    private var favoriteIDs: Set<String> = []
     private var moviesLoadTask: Cancellable? { willSet { moviesLoadTask?.cancel() } }
     private let mainQueue: DispatchQueueType
 
     // MARK: - OUTPUT
 
+    static let filterTitle = NSLocalizedString("Filter", comment: "")
     let items: Observable<[MoviesListItemViewModel]> = Observable([])
     let loading: Observable<MoviesListViewModelLoading?> = Observable(.none)
     let query: Observable<String> = Observable("")
     let error: Observable<String> = Observable("")
+    let isShowingFavorites: Observable<Bool> = Observable(false)
     var isEmpty: Bool { return items.value.isEmpty }
     let screenTitle = NSLocalizedString("Movies", comment: "")
     let emptyDataTitle = NSLocalizedString("Search results", comment: "")
     let errorTitle = NSLocalizedString("Error", comment: "")
     let searchBarPlaceholder = NSLocalizedString("Search Movies", comment: "")
+    let allMoviesFilterTitle = NSLocalizedString("All", comment: "")
+    let favoriteMoviesFilterTitle = NSLocalizedString("Favorites", comment: "")
 
     // MARK: - Init
     
@@ -85,7 +96,7 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
             .filter { $0.page != moviesPage.page }
             + [moviesPage]
 
-        items.value = pages.movies.map(MoviesListItemViewModel.init)
+        applyCurrentFilter()
     }
 
     private func resetPages() {
@@ -93,6 +104,17 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
         totalPageCount = 1
         pages.removeAll()
         items.value.removeAll()
+    }
+
+    private func applyCurrentFilter() {
+        let movies = pages.movies
+        let displayedMovies = isShowingFavorites.value ?
+            movies.filter { favoriteIDs.contains($0.id) } :
+            movies
+
+        items.value = displayedMovies.map {
+            MoviesListItemViewModel(movie: $0, isFavorite: favoriteIDs.contains($0.id))
+        }
     }
 
     private func load(movieQuery: MovieQuery, loading: MoviesListViewModelLoading) {
@@ -161,7 +183,28 @@ extension DefaultMoviesListViewModel {
     }
 
     func didSelectItem(at index: Int) {
-        actions?.showMovieDetails(pages.movies[index])
+        guard items.value.indices.contains(index),
+              let movie = pages.movies.first(where: { $0.id == items.value[index].id }) else {
+            return
+        }
+        actions?.showMovieDetails(movie)
+    }
+
+    func didToggleFavorite(at index: Int) {
+        guard items.value.indices.contains(index) else { return }
+
+        let movieID = items.value[index].id
+        if favoriteIDs.contains(movieID) {
+            favoriteIDs.remove(movieID)
+        } else {
+            favoriteIDs.insert(movieID)
+        }
+        applyCurrentFilter()
+    }
+
+    func didToggleFilter() {
+        isShowingFavorites.value.toggle()
+        applyCurrentFilter()
     }
 }
 
