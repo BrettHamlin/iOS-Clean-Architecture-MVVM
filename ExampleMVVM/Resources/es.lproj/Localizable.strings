@@ -14,3 +14,8 @@
 "No internet connection" = "Sin conexión a internet";
 "Failed loading movies" = "Error al descargar películas";
 "Search Movies" = "Buscar películas";
+"All" = "Todas";
+"Favorites" = "Favoritas";
+"No favorite movies" = "No hay películas favoritas";
+"Add %@ to favorites" = "Agregar %@ a favoritas";
+"Remove %@ from favorites" = "Eliminar %@ de favoritas";

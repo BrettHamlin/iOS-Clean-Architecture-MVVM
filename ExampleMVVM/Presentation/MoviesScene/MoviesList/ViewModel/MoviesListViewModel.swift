@@ -21,6 +21,8 @@ protocol MoviesListViewModelInput {
     func showQueriesSuggestions()
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
+    func didToggleFavorite(at index: Int)
+    func didToggleFavoritesFilter()
 }
 
 protocol MoviesListViewModelOutput {
@@ -28,16 +30,25 @@ protocol MoviesListViewModelOutput {
     var loading: Observable<MoviesListViewModelLoading?> { get }
     var query: Observable<String> { get }
     var error: Observable<String> { get }
+    var isFilteringFavorites: Observable<Bool> { get }
     var isEmpty: Bool { get }
     var screenTitle: String { get }
     var emptyDataTitle: String { get }
+    var emptyFavoritesTitle: String { get }
     var errorTitle: String { get }
     var searchBarPlaceholder: String { get }
+    var favoritesFilterAllTitle: String { get }
+    var favoritesFilterFavoritesTitle: String { get }
 }
 
 typealias MoviesListViewModel = MoviesListViewModelInput & MoviesListViewModelOutput
 
 final class DefaultMoviesListViewModel: MoviesListViewModel {
+
+    private enum FilterMode {
+        case all
+        case favorites
+    }
 
     private let searchMoviesUseCase: SearchMoviesUseCase
     private let actions: MoviesListViewModelActions?
@@ -48,6 +59,8 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
     var nextPage: Int { hasMorePages ? currentPage + 1 : currentPage }
 
     private var pages: [MoviesPage] = []
+    private var favoriteMovieIDs: Set<Movie.Identifier> = []
+    private var activeFilterMode: FilterMode = .all
     private var moviesLoadTask: Cancellable? { willSet { moviesLoadTask?.cancel() } }
     private let mainQueue: DispatchQueueType
 
@@ -57,11 +70,15 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
     let loading: Observable<MoviesListViewModelLoading?> = Observable(.none)
     let query: Observable<String> = Observable("")
     let error: Observable<String> = Observable("")
+    let isFilteringFavorites: Observable<Bool> = Observable(false)
     var isEmpty: Bool { return items.value.isEmpty }
     let screenTitle = NSLocalizedString("Movies", comment: "")
     let emptyDataTitle = NSLocalizedString("Search results", comment: "")
+    let emptyFavoritesTitle = NSLocalizedString("No favorite movies", comment: "")
     let errorTitle = NSLocalizedString("Error", comment: "")
     let searchBarPlaceholder = NSLocalizedString("Search Movies", comment: "")
+    let favoritesFilterAllTitle = NSLocalizedString("All", comment: "")
+    let favoritesFilterFavoritesTitle = NSLocalizedString("Favorites", comment: "")
 
     // MARK: - Init
     
@@ -77,7 +94,7 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
 
     // MARK: - Private
 
-    private func appendPage(_ moviesPage: MoviesPage) {
+    func appendPage(_ moviesPage: MoviesPage) {
         currentPage = moviesPage.page
         totalPageCount = moviesPage.totalPages
 
@@ -85,14 +102,41 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
             .filter { $0.page != moviesPage.page }
             + [moviesPage]
 
-        items.value = pages.movies.map(MoviesListItemViewModel.init)
+        recomputeItems()
     }
 
-    private func resetPages() {
+    func resetPages() {
         currentPage = 0
         totalPageCount = 1
         pages.removeAll()
-        items.value.removeAll()
+        recomputeItems()
+    }
+
+    private var loadedMovies: [Movie] {
+        pages.movies
+    }
+
+    private var visibleMovies: [Movie] {
+        switch activeFilterMode {
+        case .all:
+            return loadedMovies
+        case .favorites:
+            return loadedMovies.filter { favoriteMovieIDs.contains($0.id) }
+        }
+    }
+
+    private func recomputeItems() {
+        items.value = visibleMovies.map {
+            MoviesListItemViewModel(
+                movie: $0,
+                isFavorite: favoriteMovieIDs.contains($0.id)
+            )
+        }
+    }
+
+    private func movie(atVisibleIndex index: Int) -> Movie? {
+        guard visibleMovies.indices.contains(index) else { return nil }
+        return visibleMovies[index]
     }
 
     private func load(movieQuery: MovieQuery, loading: MoviesListViewModelLoading) {
@@ -161,7 +205,26 @@ extension DefaultMoviesListViewModel {
     }
 
     func didSelectItem(at index: Int) {
-        actions?.showMovieDetails(pages.movies[index])
+        guard let movie = movie(atVisibleIndex: index) else { return }
+        actions?.showMovieDetails(movie)
+    }
+
+    func didToggleFavorite(at index: Int) {
+        guard let movie = movie(atVisibleIndex: index) else { return }
+
+        if favoriteMovieIDs.contains(movie.id) {
+            favoriteMovieIDs.remove(movie.id)
+        } else {
+            favoriteMovieIDs.insert(movie.id)
+        }
+
+        recomputeItems()
+    }
+
+    func didToggleFavoritesFilter() {
+        activeFilterMode = activeFilterMode == .all ? .favorites : .all
+        isFilteringFavorites.value = activeFilterMode == .favorites
+        recomputeItems()
     }
 }
 

@@ -20,7 +20,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dgg-tT-8fn">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="611"/>
+                                        <rect key="frame" x="0.0" y="116" width="375" height="551"/>
                                         <connections>
                                             <segue destination="dtm-sz-Zlw" kind="embed" identifier="MoviesListTableViewController" id="YTl-yh-Ilp"/>
                                         </connections>
@@ -38,8 +38,18 @@
                                             <constraint firstAttribute="height" constant="56" id="5yW-5O-AOS"/>
                                         </constraints>
                                     </view>
+                                    <segmentedControl opaque="NO" contentMode="scaleToFill" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="RXd-OV-Qli">
+                                        <rect key="frame" x="16" y="64" width="343" height="44"/>
+                                        <segments>
+                                            <segment title="All"/>
+                                            <segment title="Favorites"/>
+                                        </segments>
+                                        <connections>
+                                            <action selector="didToggleFavoritesFilter:" destination="cGq-gd-62K" eventType="valueChanged" id="Eki-bF-o5N"/>
+                                        </connections>
+                                    </segmentedControl>
                                     <containerView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xZl-fe-PlP">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="611"/>
+                                        <rect key="frame" x="0.0" y="116" width="375" height="551"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </containerView>
                                 </subviews>
@@ -51,14 +61,18 @@
                                     <constraint firstAttribute="trailing" secondItem="dgg-tT-8fn" secondAttribute="trailing" id="7iM-kZ-QOH"/>
                                     <constraint firstAttribute="trailing" secondItem="Pfu-J9-aom" secondAttribute="trailing" id="BYM-9K-qsU"/>
                                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="f6J-2l-iab" secondAttribute="trailing" constant="16" id="Gzt-QT-s9r"/>
-                                    <constraint firstItem="xZl-fe-PlP" firstAttribute="top" secondItem="Pfu-J9-aom" secondAttribute="bottom" id="Vl5-tL-Xgz"/>
+                                    <constraint firstItem="RXd-OV-Qli" firstAttribute="height" constant="44" id="JXq-Rs-eyr"/>
+                                    <constraint firstItem="RXd-OV-Qli" firstAttribute="leading" secondItem="URz-eU-usl" secondAttribute="leading" constant="16" id="M55-tX-X5k"/>
+                                    <constraint firstItem="xZl-fe-PlP" firstAttribute="top" secondItem="RXd-OV-Qli" secondAttribute="bottom" constant="8" id="Vl5-tL-Xgz"/>
                                     <constraint firstItem="xZl-fe-PlP" firstAttribute="leading" secondItem="URz-eU-usl" secondAttribute="leading" id="VyA-Qu-Qy8"/>
                                     <constraint firstItem="Pfu-J9-aom" firstAttribute="top" secondItem="URz-eU-usl" secondAttribute="top" id="bcB-KD-erM"/>
                                     <constraint firstAttribute="bottom" secondItem="xZl-fe-PlP" secondAttribute="bottom" id="f7N-Yl-gLn"/>
                                     <constraint firstAttribute="trailing" secondItem="xZl-fe-PlP" secondAttribute="trailing" id="gq6-bs-Mly"/>
-                                    <constraint firstItem="dgg-tT-8fn" firstAttribute="top" secondItem="Pfu-J9-aom" secondAttribute="bottom" id="qDC-ON-LYl"/>
+                                    <constraint firstItem="RXd-OV-Qli" firstAttribute="top" secondItem="Pfu-J9-aom" secondAttribute="bottom" constant="8" id="kjC-Tw-RgA"/>
+                                    <constraint firstItem="dgg-tT-8fn" firstAttribute="top" secondItem="RXd-OV-Qli" secondAttribute="bottom" constant="8" id="qDC-ON-LYl"/>
                                     <constraint firstItem="f6J-2l-iab" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="URz-eU-usl" secondAttribute="leading" constant="16" id="quB-06-0Nr"/>
                                     <constraint firstItem="f6J-2l-iab" firstAttribute="centerX" secondItem="URz-eU-usl" secondAttribute="centerX" id="qye-G4-IZj"/>
+                                    <constraint firstAttribute="trailing" secondItem="RXd-OV-Qli" secondAttribute="trailing" constant="16" id="rnO-qP-mEL"/>
                                     <constraint firstItem="f6J-2l-iab" firstAttribute="centerY" secondItem="URz-eU-usl" secondAttribute="centerY" constant="28" id="vKu-65-f4Y"/>
                                 </constraints>
                             </view>
@@ -75,6 +89,7 @@
                     <connections>
                         <outlet property="contentView" destination="URz-eU-usl" id="uqN-yv-Ufo"/>
                         <outlet property="emptyDataLabel" destination="f6J-2l-iab" id="7eT-UL-qzF"/>
+                        <outlet property="favoritesFilterSegmentedControl" destination="RXd-OV-Qli" id="bY7-VU-dIs"/>
                         <outlet property="moviesListContainer" destination="dgg-tT-8fn" id="RcZ-CD-wCq"/>
                         <outlet property="searchBarContainer" destination="Pfu-J9-aom" id="BmD-lq-IZN"/>
                         <outlet property="suggestionsListContainer" destination="xZl-fe-PlP" id="6hU-xB-rVM"/>

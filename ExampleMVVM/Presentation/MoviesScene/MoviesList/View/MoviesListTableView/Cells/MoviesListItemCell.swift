@@ -14,6 +14,13 @@ final class MoviesListItemCell: UITableViewCell {
     private var posterImagesRepository: PosterImagesRepository?
     private var imageLoadTask: Cancellable? { willSet { imageLoadTask?.cancel() } }
     private let mainQueue: DispatchQueueType = DispatchQueue.main
+    var onFavoriteToggle: (() -> Void)?
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onFavoriteToggle = nil
+        accessoryView = nil
+    }
 
     func fill(
         with viewModel: MoviesListItemViewModel,
@@ -25,7 +32,30 @@ final class MoviesListItemCell: UITableViewCell {
         titleLabel.text = viewModel.title
         dateLabel.text = viewModel.releaseDate
         overviewLabel.text = viewModel.overview
+        updateFavoriteIndicator()
         updatePosterImage(width: Int(posterImageView.imageSizeAfterAspectFit.scaledSize.width))
+    }
+
+    private func updateFavoriteIndicator() {
+        let favoriteButton = UIButton(type: .system)
+        favoriteButton.setTitle(viewModel.isFavorite ? "★" : "☆", for: .normal)
+        favoriteButton.titleLabel?.font = UIFont.systemFont(ofSize: 28)
+        let accessibilityFormat = viewModel.isFavorite ?
+            NSLocalizedString("Remove %@ from favorites", comment: "") :
+            NSLocalizedString("Add %@ to favorites", comment: "")
+        favoriteButton.accessibilityLabel = String(format: accessibilityFormat, viewModel.title)
+        if viewModel.isFavorite {
+            favoriteButton.accessibilityTraits.insert(.selected)
+        } else {
+            favoriteButton.accessibilityTraits.remove(.selected)
+        }
+        favoriteButton.frame = CGRect(x: 0, y: 0, width: 44, height: 44)
+        favoriteButton.addTarget(self, action: #selector(didTapFavoriteButton), for: .touchUpInside)
+        accessoryView = favoriteButton
+    }
+
+    @objc private func didTapFavoriteButton() {
+        onFavoriteToggle?()
     }
 
     private func updatePosterImage(width: Int) {
