@@ -168,6 +168,8 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     }
 
     @objc private func didChangeFavoritesFilter() {
+        let shouldActivateFilter = favoritesFilterControl.selectedSegmentIndex == 1
+        guard viewModel.favoriteFilterActive.value != shouldActivateFilter else { return }
         viewModel.didToggleFavoritesFilter()
     }
 }

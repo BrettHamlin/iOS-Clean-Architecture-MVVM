@@ -178,6 +178,30 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.items.value.isEmpty)
     }
 
+    func test_whenFavoritesFilterActive_thenToggleFavoriteUsesDisplayedIndex() {
+        //harness:criterion=c-toggle-favorite-unmarks-item,c-favorites-filter-shows-only-favorited
+        let page = MoviesPage(page: 1, totalPages: 1, movies: [
+            Movie.stub(id: "unfavorited", title: "unfavorited"),
+            Movie.stub(id: "favorite-1", title: "favorite 1"),
+            Movie.stub(id: "favorite-2", title: "favorite 2")
+        ])
+        let (viewModel, _) = makeViewModel(returning: page)
+        viewModel.didToggleFavorite(at: 1)
+        viewModel.didToggleFavorite(at: 2)
+        viewModel.didToggleFavoritesFilter()
+
+        viewModel.didToggleFavorite(at: 0)
+
+        XCTAssertEqual(viewModel.items.value.map(\.title), ["favorite 2"])
+        XCTAssertTrue(viewModel.items.value.allSatisfy(\.isFavorite))
+
+        viewModel.didToggleFavoritesFilter()
+
+        XCTAssertFalse(viewModel.items.value[0].isFavorite)
+        XCTAssertFalse(viewModel.items.value[1].isFavorite)
+        XCTAssertTrue(viewModel.items.value[2].isFavorite)
+    }
+
     func test_whenFavoriteStateIsInMemoryOnly_thenNewViewModelStartsWithoutFavorites() {
         //harness:criterion=c-favorite-state-in-memory-only
         let (firstViewModel, _) = makeViewModel(returning: moviesPages[0])
