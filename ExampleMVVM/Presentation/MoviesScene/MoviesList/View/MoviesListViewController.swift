@@ -125,6 +125,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     }
 
     @IBAction private func didToggleFilter(_ sender: UISegmentedControl) {
+        guard viewModel.isShowingFavorites.value != (sender.selectedSegmentIndex == 1) else { return }
         viewModel.didToggleFilter()
     }
 }

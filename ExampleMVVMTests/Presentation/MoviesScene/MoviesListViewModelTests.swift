@@ -359,6 +359,27 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.items.value.allSatisfy { $0.isFavorite })
     }
 
+    // harness:criterion=c-favorites-filter-empty-when-none-favorited,c-tests-use-given-when-then-style
+    func testFavoritesFilterEmptyWhenNoneFavorited() {
+        // given
+        let searchMoviesUseCaseMock = SearchMoviesUseCaseMock()
+        searchMoviesUseCaseMock._execute = { _, _, completion in
+            completion(.success(self.moviesPages[0]))
+        }
+        let viewModel = DefaultMoviesListViewModel.make(
+            searchMoviesUseCase: searchMoviesUseCaseMock
+        )
+        viewModel.didSearch(query: "query")
+        XCTAssertEqual(viewModel.items.value.count, moviesPages[0].movies.count)
+
+        // when
+        viewModel.didToggleFilter()
+
+        // then
+        XCTAssertTrue(viewModel.isShowingFavorites.value)
+        XCTAssertTrue(viewModel.items.value.isEmpty)
+    }
+
     // harness:criterion=c-all-filter-restores-full-list,c-tests-use-given-when-then-style
     func testAllFilterRestoresFullList() {
         // given

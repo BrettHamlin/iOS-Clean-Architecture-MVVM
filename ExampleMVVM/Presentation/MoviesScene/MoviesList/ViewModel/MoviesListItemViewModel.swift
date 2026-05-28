@@ -3,7 +3,7 @@
 import Foundation
 
 struct MoviesListItemViewModel: Equatable {
-    let id: String
+    var id: String
     let title: String
     let overview: String
     let releaseDate: String
