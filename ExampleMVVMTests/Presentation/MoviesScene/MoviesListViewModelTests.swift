@@ -62,6 +62,7 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertEqual(searchMoviesUseCaseMock.executeCallCount, 1)
     }
     
+    //harness:criterion=c-existing-search-behavior-unaffected
     func test_whenSearchMoviesUseCaseRetrievesFirstPage_thenViewModelContainsOnlyFirstPage() {
         // given
         let searchMoviesUseCaseMock = SearchMoviesUseCaseMock()
@@ -82,6 +83,7 @@ class MoviesListViewModelTests: XCTestCase {
             .movies
             .map { MoviesListItemViewModel(movie: $0) }
         XCTAssertEqual(viewModel.items.value, expectedItems)
+        XCTAssertEqual(viewModel.items.value.count, moviesPages[0].movies.count)
         XCTAssertEqual(viewModel.currentPage, 1)
         XCTAssertTrue(viewModel.hasMorePages)
         XCTAssertEqual(searchMoviesUseCaseMock.executeCallCount, 1)
@@ -119,6 +121,7 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertEqual(searchMoviesUseCaseMock.executeCallCount, 2)
     }
 
+    //harness:criterion=c-existing-search-behavior-unaffected
     func test_whenSearchMoviesUseCaseReturnsError_thenViewModelContainsError() {
         // given
         let searchMoviesUseCaseMock = SearchMoviesUseCaseMock()

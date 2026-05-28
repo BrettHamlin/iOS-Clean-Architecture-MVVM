@@ -50,14 +50,28 @@ final class MoviesListItemCell: UITableViewCell {
             button.translatesAutoresizingMaskIntoConstraints = false
             contentView.addSubview(button)
             favoriteButton = button
-            NSLayoutConstraint.activate([
+
+            var constraints = [
                 button.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
-                button.trailingAnchor.constraint(equalTo: posterImageView.leadingAnchor, constant: -8),
-                button.leadingAnchor.constraint(greaterThanOrEqualTo: titleLabel.trailingAnchor, constant: 8),
-                button.leadingAnchor.constraint(greaterThanOrEqualTo: dateLabel.trailingAnchor, constant: 8),
                 button.widthAnchor.constraint(greaterThanOrEqualToConstant: 44),
                 button.heightAnchor.constraint(equalToConstant: 44)
-            ])
+            ]
+
+            if let posterImageView = posterImageView,
+               let titleLabel = titleLabel,
+               let dateLabel = dateLabel {
+                constraints.append(contentsOf: [
+                    button.trailingAnchor.constraint(equalTo: posterImageView.leadingAnchor, constant: -8),
+                    button.leadingAnchor.constraint(greaterThanOrEqualTo: titleLabel.trailingAnchor, constant: 8),
+                    button.leadingAnchor.constraint(greaterThanOrEqualTo: dateLabel.trailingAnchor, constant: 8)
+                ])
+            } else {
+                constraints.append(
+                    button.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16)
+                )
+            }
+
+            NSLayoutConstraint.activate(constraints)
         }
 
         favoriteButton.removeTarget(self, action: #selector(didTapFavoriteButton), for: .touchUpInside)
