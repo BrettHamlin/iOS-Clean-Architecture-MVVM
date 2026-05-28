@@ -62,8 +62,8 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     private func setupViews() {
         title = viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle
-        filterSegmentedControl.setTitle(NSLocalizedString("All", comment: ""), forSegmentAt: 0)
-        filterSegmentedControl.setTitle(NSLocalizedString("Favorites", comment: ""), forSegmentAt: 1)
+        filterSegmentedControl.setTitle(NSLocalizedString("movies.list.filter.all", comment: ""), forSegmentAt: 0)
+        filterSegmentedControl.setTitle(NSLocalizedString("movies.list.filter.favorites", comment: ""), forSegmentAt: 1)
         filterSegmentedControl.accessibilityIdentifier = AccessibilityIdentifier.moviesListFilterControl
         setupSearchController()
     }

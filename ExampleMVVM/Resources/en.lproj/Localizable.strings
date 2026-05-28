@@ -21,3 +21,11 @@
 "Not favorited" = "Not favorited";
 "Add %@ to favorites" = "Add %@ to favorites";
 "Remove %@ from favorites" = "Remove %@ from favorites";
+"movies.list.filter.all" = "All";
+"movies.list.filter.favorites" = "Favorites";
+"movies.list.favorite.button.title" = "Favorite";
+"movies.list.favorite.button.selected_title" = "Favorited";
+"movies.list.favorite.button.accessibility.add" = "Add %@ to favorites";
+"movies.list.favorite.button.accessibility.remove" = "Remove %@ from favorites";
+"movies.list.favorite.state.favorited" = "Favorited";
+"movies.list.favorite.state.not_favorited" = "Not favorited";

@@ -29,18 +29,21 @@ final class MoviesListItemCell: UITableViewCell {
         overviewLabel.text = viewModel.overview
         favoriteButton.isSelected = viewModel.isFavorite
         favoriteButton.accessibilityIdentifier = AccessibilityIdentifier.movieFavoriteButton
+        let accessibilityLabelKey = viewModel.isFavorite ?
+            "movies.list.favorite.button.accessibility.remove" :
+            "movies.list.favorite.button.accessibility.add"
         favoriteButton.accessibilityLabel = String(
-            format: NSLocalizedString(viewModel.isFavorite ? "Remove %@ from favorites" : "Add %@ to favorites", comment: ""),
+            format: NSLocalizedString(accessibilityLabelKey, comment: ""),
             viewModel.title
         )
-        favoriteButton.accessibilityValue = NSLocalizedString(viewModel.isFavorite ? "Favorited" : "Not favorited", comment: "")
+        favoriteButton.accessibilityValue = NSLocalizedString(viewModel.isFavorite ? "movies.list.favorite.state.favorited" : "movies.list.favorite.state.not_favorited", comment: "")
         updatePosterImage(width: Int(posterImageView.imageSizeAfterAspectFit.scaledSize.width))
     }
 
     override func awakeFromNib() {
         super.awakeFromNib()
-        favoriteButton.setTitle(NSLocalizedString("Favorite", comment: ""), for: .normal)
-        favoriteButton.setTitle(NSLocalizedString("Favorited", comment: ""), for: .selected)
+        favoriteButton.setTitle(NSLocalizedString("movies.list.favorite.button.title", comment: ""), for: .normal)
+        favoriteButton.setTitle(NSLocalizedString("movies.list.favorite.button.selected_title", comment: ""), for: .selected)
         favoriteButton.setTitleColor(.lightGray, for: .normal)
         favoriteButton.setTitleColor(.orange, for: .selected)
     }
