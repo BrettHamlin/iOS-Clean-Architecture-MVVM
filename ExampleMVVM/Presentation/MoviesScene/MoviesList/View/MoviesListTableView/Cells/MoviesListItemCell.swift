@@ -50,6 +50,9 @@ final class MoviesListItemCell: UITableViewCell {
         onFavoriteTapped = nil
         imageLoadTask = nil
         posterImageView.image = nil
+        favoriteButton.isSelected = false
+        favoriteButton.accessibilityLabel = nil
+        favoriteButton.accessibilityValue = nil
     }
 
     @IBAction private func favoriteButtonTapped(_ sender: UIButton) {
