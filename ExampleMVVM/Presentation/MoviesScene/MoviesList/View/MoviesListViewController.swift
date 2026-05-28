@@ -7,6 +7,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     @IBOutlet private(set) var suggestionsListContainer: UIView!
     @IBOutlet private var searchBarContainer: UIView!
     @IBOutlet private var emptyDataLabel: UILabel!
+    @IBOutlet private var favoritesFilterSegmentedControl: UISegmentedControl!
     
     private var viewModel: MoviesListViewModel!
     private var posterImagesRepository: PosterImagesRepository?
@@ -39,6 +40,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         viewModel.loading.observe(on: self) { [weak self] in self?.updateLoading($0) }
         viewModel.query.observe(on: self) { [weak self] in self?.updateSearchQuery($0) }
         viewModel.error.observe(on: self) { [weak self] in self?.showError($0) }
+        viewModel.isFilteringFavorites.observe(on: self) { [weak self] in self?.updateFavoritesFilter($0) }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -59,7 +61,8 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
 
     private func setupViews() {
         title = viewModel.screenTitle
-        emptyDataLabel.text = viewModel.emptyDataTitle
+        updateEmptyDataTitle()
+        setupFavoritesFilter()
         setupSearchController()
     }
 
@@ -70,6 +73,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
 
     private func updateItems() {
         moviesTableViewController?.reload()
+        updateEmptyState()
     }
 
     private func updateLoading(_ loading: MoviesListViewModelLoading?) {
@@ -82,8 +86,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         case .fullScreen: LoadingView.show()
         case .nextPage: moviesListContainer.isHidden = false
         case .none:
-            moviesListContainer.isHidden = viewModel.isEmpty
-            emptyDataLabel.isHidden = !viewModel.isEmpty
+            updateEmptyState()
         }
 
         moviesTableViewController?.updateLoading(loading)
@@ -103,9 +106,38 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         searchController.searchBar.text = query
     }
 
+    private func setupFavoritesFilter() {
+        favoritesFilterSegmentedControl.setTitle(viewModel.favoritesFilterAllTitle, forSegmentAt: 0)
+        favoritesFilterSegmentedControl.setTitle(viewModel.favoritesFilterFavoritesTitle, forSegmentAt: 1)
+        favoritesFilterSegmentedControl.selectedSegmentIndex = 0
+    }
+
+    private func updateFavoritesFilter(_ isFilteringFavorites: Bool) {
+        favoritesFilterSegmentedControl.selectedSegmentIndex = isFilteringFavorites ? 1 : 0
+        updateEmptyDataTitle()
+        updateEmptyState()
+    }
+
+    private func updateEmptyDataTitle() {
+        emptyDataLabel.text = viewModel.isFilteringFavorites.value ?
+            viewModel.emptyFavoritesTitle :
+            viewModel.emptyDataTitle
+    }
+
+    private func updateEmptyState() {
+        guard viewModel.loading.value == .none else { return }
+        updateEmptyDataTitle()
+        moviesListContainer.isHidden = viewModel.isEmpty
+        emptyDataLabel.isHidden = !viewModel.isEmpty
+    }
+
     private func showError(_ error: String) {
         guard !error.isEmpty else { return }
         showAlert(title: viewModel.errorTitle, message: error)
+    }
+
+    @IBAction private func didToggleFavoritesFilter(_ sender: UISegmentedControl) {
+        viewModel.didToggleFavoritesFilter()
     }
 }
 
