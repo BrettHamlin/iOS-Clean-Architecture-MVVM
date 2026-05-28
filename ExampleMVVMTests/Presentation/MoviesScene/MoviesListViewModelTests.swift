@@ -369,6 +369,48 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.items.value.map(\.id), ["1", "2", "3"])
     }
 
+    func test_whenFilterIsSetDirectly_thenItemsEmitForSelectedFilter() {
+        //harness:criterion=c-input-protocol-did-toggle-filter,c-did-toggle-filter-switches-mode,c-items-rederived-on-filter-change,c-xctest-style-given-when-then
+        // given
+        let page = MoviesPage(page: 1, totalPages: 1, movies: [
+            Movie.stub(id: "1"),
+            Movie.stub(id: "2"),
+            Movie.stub(id: "3")
+        ])
+        let searchMoviesUseCaseMock = SearchMoviesUseCaseMock()
+        searchMoviesUseCaseMock._execute = { _, _, completion in
+            completion(.success(page))
+        }
+        let mainQueue = DispatchQueueTypeMock()
+        let viewModel = DefaultMoviesListViewModel(
+            searchMoviesUseCase: searchMoviesUseCaseMock,
+            mainQueue: mainQueue
+        )
+        viewModel.didSearch(query: "query")
+        viewModel.didToggleFavorite(at: 1)
+        var emittedIDs: [[Movie.Identifier]] = []
+        viewModel.items.observe(on: self) { items in
+            emittedIDs.append(items.map(\.id))
+        }
+        let input: MoviesListViewModelInput = viewModel
+
+        // when
+        input.didSetFilter(.favorites)
+
+        // then
+        XCTAssertEqual(viewModel.filterMode.value, .favorites)
+        XCTAssertEqual(viewModel.items.value.map(\.id), ["2"])
+        XCTAssertEqual(emittedIDs.last, ["2"])
+
+        // when
+        input.didSetFilter(.all)
+
+        // then
+        XCTAssertEqual(viewModel.filterMode.value, .all)
+        XCTAssertEqual(viewModel.items.value.map(\.id), ["1", "2", "3"])
+        XCTAssertEqual(emittedIDs.last, ["1", "2", "3"])
+    }
+
     func test_whenFavoriteIsRemovedWhileFavoritesFilterIsActive_thenFilteredItemsUpdateImmediately() {
         //harness:criterion=c-did-toggle-favorite-removes-id,c-items-rederived-on-favorite-toggle,c-filter-favorites-shows-only-favorited,c-xctest-style-given-when-then
         // given
@@ -485,6 +527,44 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertTrue(viewModel.items.value.allSatisfy { $0.isFavorite })
     }
 
+    func test_whenLoadingUnfavoritedNextPageInFavoritesMode_thenExistingFavoritesRemainFiltered() {
+        //harness:criterion=c-append-page-respects-active-filter,c-pagination-in-favorites-mode-correct,c-xctest-style-given-when-then
+        // given
+        let page1 = MoviesPage(page: 1, totalPages: 2, movies: [
+            Movie.stub(id: "favorite-id"),
+            Movie.stub(id: "unfavorited-id")
+        ])
+        let page2 = MoviesPage(page: 2, totalPages: 2, movies: [
+            Movie.stub(id: "new-unfavorited-id-1"),
+            Movie.stub(id: "new-unfavorited-id-2")
+        ])
+        let searchMoviesUseCaseMock = SearchMoviesUseCaseMock()
+        searchMoviesUseCaseMock._execute = { requestValue, _, completion in
+            XCTAssertEqual(requestValue.page, 1)
+            completion(.success(page1))
+        }
+        let mainQueue = DispatchQueueTypeMock()
+        let viewModel = DefaultMoviesListViewModel(
+            searchMoviesUseCase: searchMoviesUseCaseMock,
+            mainQueue: mainQueue
+        )
+        viewModel.didSearch(query: "query")
+        viewModel.didToggleFavorite(at: 0)
+        viewModel.didToggleFilter()
+        searchMoviesUseCaseMock._execute = { requestValue, _, completion in
+            XCTAssertEqual(requestValue.page, 2)
+            completion(.success(page2))
+        }
+
+        // when
+        viewModel.didLoadNextPage()
+
+        // then
+        XCTAssertEqual(viewModel.filterMode.value, .favorites)
+        XCTAssertEqual(viewModel.items.value.map(\.id), ["favorite-id"])
+        XCTAssertTrue(viewModel.items.value.allSatisfy { $0.isFavorite })
+    }
+
     func test_whenCachedAndFreshResultsArriveInFavoritesMode_thenBothRespectFilter() {
         //harness:criterion=c-cached-page-update-respects-filter,c-fresh-page-update-respects-filter,c-xctest-style-given-when-then
         // given
@@ -526,6 +606,47 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertTrue(cachedItems.allSatisfy { $0.isFavorite })
         XCTAssertEqual(viewModel.items.value.map(\.id), ["favorite-id"])
         XCTAssertTrue(viewModel.items.value.allSatisfy { $0.isFavorite })
+    }
+
+    func test_whenFreshResultReplacesCachedFavoriteWithNoFavoritedMovies_thenFavoritesFilterIsEmpty() {
+        //harness:criterion=c-fresh-page-update-respects-filter,c-items-rederived-on-filter-change,c-xctest-style-given-when-then
+        // given
+        let seedPage = MoviesPage(page: 1, totalPages: 1, movies: [
+            Movie.stub(id: "favorite-id")
+        ])
+        let cachedPage = MoviesPage(page: 1, totalPages: 1, movies: [
+            Movie.stub(id: "favorite-id"),
+            Movie.stub(id: "cached-unfavorited-id")
+        ])
+        let freshPage = MoviesPage(page: 1, totalPages: 1, movies: [
+            Movie.stub(id: "fresh-unfavorited-id")
+        ])
+        let searchMoviesUseCaseMock = SearchMoviesUseCaseMock()
+        searchMoviesUseCaseMock._execute = { _, _, completion in
+            completion(.success(seedPage))
+        }
+        let mainQueue = DispatchQueueTypeMock()
+        let viewModel = DefaultMoviesListViewModel(
+            searchMoviesUseCase: searchMoviesUseCaseMock,
+            mainQueue: mainQueue
+        )
+        viewModel.didSearch(query: "seed query")
+        viewModel.didToggleFavorite(at: 0)
+        viewModel.didToggleFilter()
+        var cachedItems: [MoviesListItemViewModel] = []
+        searchMoviesUseCaseMock._execute = { _, cached, completion in
+            cached(cachedPage)
+            cachedItems = viewModel.items.value
+            completion(.success(freshPage))
+        }
+
+        // when
+        viewModel.didSearch(query: "replacement query")
+
+        // then
+        XCTAssertEqual(cachedItems.map(\.id), ["favorite-id"])
+        XCTAssertTrue(cachedItems.allSatisfy { $0.isFavorite })
+        XCTAssertTrue(viewModel.items.value.isEmpty)
     }
 
     func test_whenFavoriteExistsAndNewSearchStarts_thenFavoriteStatePersistsForMatchingMovie() {

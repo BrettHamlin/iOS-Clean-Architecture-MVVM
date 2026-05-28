@@ -193,9 +193,8 @@ extension DefaultMoviesListViewModel {
     }
 
     func didToggleFavorite(at index: Int) {
-        let movies = filteredMovies()
-        guard movies.indices.contains(index) else { return }
-        let movieID = movies[index].id
+        guard items.value.indices.contains(index) else { return }
+        let movieID = items.value[index].id
         if favoriteMovieIDs.contains(movieID) {
             favoriteMovieIDs.remove(movieID)
         } else {

@@ -108,6 +108,7 @@
 		6CFA000129CF00000000000B /* UIViewController+ActivityIndicator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FCBB8CD25237D4C007F23DC /* UIViewController+ActivityIndicator.swift */; };
 		6CFA000129CF00000000000C /* MoviesListViewController.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 1FE49D70230AA7C200D1D42E /* MoviesListViewController.storyboard */; };
 		6CFA000129CF00000000000D /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 1FF082B5239438DC00876A22 /* Localizable.strings */; };
+		6CFA000129CF00000000000E /* CGSize+ScaledSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FC5B7D1242635CB0086FA8C /* CGSize+ScaledSize.swift */; };
 		1FF53EB423688893008D6CCC /* DataTransferError+ConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF53EB323688893008D6CCC /* DataTransferError+ConnectionError.swift */; };
 		1FFF12A42439F2E700937EE4 /* MoviesResponseStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF12A32439F2E700937EE4 /* MoviesResponseStorage.swift */; };
 		1FFF12A72439FA9E00937EE4 /* CoreDataMoviesResponseStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FFF12A62439FA9E00937EE4 /* CoreDataMoviesResponseStorage.swift */; };
@@ -1124,6 +1125,7 @@
 				1FE49D9D230AEC5D00D1D42E /* MoviesQueryListViewModel.swift in Sources */,
 				6CFA000129CF000000000006 /* LoadingView.swift in Sources */,
 				6CFA000129CF00000000000A /* UIImageView+ImageSizeAfterAspectFit.swift in Sources */,
+				6CFA000129CF00000000000E /* CGSize+ScaledSize.swift in Sources */,
 				1F474F2A22356C7F0092DB4B /* Movie.swift in Sources */,
 				6CFA000129CF000000000002 /* MoviesListTableViewController.swift in Sources */,
 				1F90353723076B8A00DEA4BD /* MovieDetailsViewModelTests.swift in Sources */,
