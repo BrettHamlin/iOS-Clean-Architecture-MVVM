@@ -14,3 +14,16 @@
 "No internet connection" = "Sin conexión a internet";
 "Failed loading movies" = "Error al descargar películas";
 "Search Movies" = "Buscar películas";
+"All" = "Todas";
+"Favorites" = "Favoritas";
+"Favorite" = "Favorita";
+"Favorited" = "Favorita";
+"Not favorited" = "No favorita";
+"Toggle favorite" = "Alternar favorita";
+"favorite_button_accessibility_label" = "Alternar favorita";
+"Add to favorites" = "Agregar a favoritas";
+"Remove from favorites" = "Quitar de favoritas";
+"Add movie to favorites" = "Agregar %@ a favoritas";
+"Remove movie from favorites" = "Quitar %@ de favoritas";
+"Movie filter" = "Filtro de películas";
+"Filters the movie search results" = "Filtra los resultados de búsqueda de películas";

@@ -6,6 +6,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     @IBOutlet private var moviesListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
     @IBOutlet private var searchBarContainer: UIView!
+    @IBOutlet private(set) var favoritesFilterControl: UISegmentedControl!
     @IBOutlet private var emptyDataLabel: UILabel!
     
     private var viewModel: MoviesListViewModel!
@@ -39,6 +40,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         viewModel.loading.observe(on: self) { [weak self] in self?.updateLoading($0) }
         viewModel.query.observe(on: self) { [weak self] in self?.updateSearchQuery($0) }
         viewModel.error.observe(on: self) { [weak self] in self?.showError($0) }
+        viewModel.isFavoritesFilterEnabled.observe(on: self) { [weak self] in self?.updateFavoritesFilter($0) }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -61,6 +63,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         title = viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle
         setupSearchController()
+        setupFavoritesFilterControl()
     }
 
     private func setupBehaviours() {
@@ -106,6 +109,27 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     private func showError(_ error: String) {
         guard !error.isEmpty else { return }
         showAlert(title: viewModel.errorTitle, message: error)
+    }
+
+    private func setupFavoritesFilterControl() {
+        favoritesFilterControl.setTitle(NSLocalizedString("All", comment: ""), forSegmentAt: 0)
+        favoritesFilterControl.setTitle(NSLocalizedString("Favorites", comment: ""), forSegmentAt: 1)
+        favoritesFilterControl.selectedSegmentIndex = 0
+        favoritesFilterControl.accessibilityIdentifier = AccessibilityIdentifier.favoritesFilterControl
+        favoritesFilterControl.accessibilityLabel = NSLocalizedString("Movie filter", comment: "")
+        favoritesFilterControl.accessibilityHint = NSLocalizedString("Filters the movie search results", comment: "")
+        updateFavoritesFilter(false)
+    }
+
+    private func updateFavoritesFilter(_ isEnabled: Bool) {
+        favoritesFilterControl.selectedSegmentIndex = isEnabled ? 1 : 0
+        favoritesFilterControl.accessibilityValue = isEnabled ?
+            NSLocalizedString("Favorites", comment: "") :
+            NSLocalizedString("All", comment: "")
+    }
+
+    @IBAction private func favoritesFilterValueChanged(_ sender: UISegmentedControl) {
+        viewModel.didToggleFavoritesFilter()
     }
 }
 
