@@ -45,6 +45,7 @@ final class MoviesListItemCell: UITableViewCell {
 
     private func setupFavoriteButton() {
         favoriteButton.translatesAutoresizingMaskIntoConstraints = false
+        favoriteButton.accessibilityIdentifier = AccessibilityIdentifier.movieFavoriteButton
         favoriteButton.addTarget(self, action: #selector(didTapFavoriteButton), for: .touchUpInside)
         contentView.addSubview(favoriteButton)
         NSLayoutConstraint.activate([

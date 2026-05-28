@@ -110,6 +110,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     }
 
     private func setupFilterSegmentedControl() {
+        filterSegmentedControl.accessibilityIdentifier = AccessibilityIdentifier.moviesFilter
         filterSegmentedControl.setTitle(viewModel.allMoviesFilterTitle, forSegmentAt: 0)
         filterSegmentedControl.setTitle(viewModel.favoriteMoviesFilterTitle, forSegmentAt: 1)
         filterSegmentedControl.selectedSegmentIndex = viewModel.isShowingFavorites.value ? 1 : 0

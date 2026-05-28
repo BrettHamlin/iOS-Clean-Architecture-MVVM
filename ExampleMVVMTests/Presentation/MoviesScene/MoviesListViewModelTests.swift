@@ -696,12 +696,12 @@ class MoviesListViewModelTests: XCTestCase {
         viewModel.didToggleFilter()
 
         // when
-        viewModel.didSelectItem(at: 0)
+        viewModel.didSelectItem(at: 1)
 
         // then
-        XCTAssertEqual(viewModel.items.value[0].id, "favorite-first")
-        XCTAssertEqual(selectedMovie?.id, viewModel.items.value[0].id)
-        XCTAssertNotEqual(selectedMovie?.id, Optional(page.movies[0].id))
+        XCTAssertEqual(viewModel.items.value.map { $0.id }, ["favorite-first", "favorite-second"])
+        XCTAssertEqual(selectedMovie?.id, viewModel.items.value[1].id)
+        XCTAssertNotEqual(selectedMovie?.id, Optional(page.movies[1].id))
     }
 
     // harness:criterion=c-did-select-navigates-correct-movie-all,c-existing-details-navigation-preserved,c-tests-use-given-when-then-style
