@@ -242,6 +242,41 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertEqual(searchMoviesUseCaseMock.executeCallCount, 1)
     }
 
+    // harness:criterion=c-existing-recent-query-suggestion-preserved,c-existing-search-behavior-preserved,c-tests-use-given-when-then-style
+    func test_whenMovieQuerySuggestionSelectedWithAllFilter_thenSuggestedQueryLoadsResults() {
+        // given
+        let suggestedPage = MoviesPage(page: 1, totalPages: 1, movies: [
+            .stub(id: "suggested-id", title: "suggested-title")
+        ])
+        let searchMoviesUseCaseMock = SearchMoviesUseCaseMock()
+        searchMoviesUseCaseMock._execute = { requestValue, _, completion in
+            XCTAssertEqual(requestValue.page, 1)
+            XCTAssertEqual(requestValue.query, MovieQuery(query: "suggested query"))
+            completion(.success(suggestedPage))
+        }
+        var didSelectSuggestion: ((MovieQuery) -> Void)?
+        let actions = MoviesListViewModelActions(
+            showMovieDetails: { _ in },
+            showMovieQueriesSuggestions: { didSelectSuggestion = $0 },
+            closeMovieQueriesSuggestions: {}
+        )
+        let viewModel = DefaultMoviesListViewModel.make(
+            searchMoviesUseCase: searchMoviesUseCaseMock,
+            actions: actions
+        )
+        XCTAssertFalse(viewModel.isShowingFavorites.value)
+
+        // when
+        viewModel.showQueriesSuggestions()
+        didSelectSuggestion?(MovieQuery(query: "suggested query"))
+
+        // then
+        XCTAssertEqual(viewModel.query.value, "suggested query")
+        XCTAssertEqual(viewModel.items.value.map { $0.id }, ["suggested-id"])
+        XCTAssertEqual(searchMoviesUseCaseMock.executeCallCount, 1)
+        XCTAssertFalse(viewModel.items.value[0].isFavorite)
+    }
+
     // harness:criterion=c-input-toggle-favorite-method,c-input-toggle-filter-method,c-output-filter-mode-observable,c-output-filter-title-string,c-item-vm-id-property,c-item-vm-is-favorite-property,c-tests-use-given-when-then-style
     func test_whenUsingFavoritesPublicSurface_thenViewModelAndItemPropertiesAreAvailable() {
         // given

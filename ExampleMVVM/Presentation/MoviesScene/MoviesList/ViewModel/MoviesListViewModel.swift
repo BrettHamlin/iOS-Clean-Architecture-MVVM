@@ -103,7 +103,7 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
         currentPage = 0
         totalPageCount = 1
         pages.removeAll()
-        items.value.removeAll()
+        applyCurrentFilter()
     }
 
     private func applyCurrentFilter() {
