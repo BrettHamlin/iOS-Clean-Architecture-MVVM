@@ -20,7 +20,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dgg-tT-8fn">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="611"/>
+                                        <rect key="frame" x="0.0" y="104" width="375" height="563"/>
                                         <connections>
                                             <segue destination="dtm-sz-Zlw" kind="embed" identifier="MoviesListTableViewController" id="YTl-yh-Ilp"/>
                                         </connections>
@@ -38,8 +38,18 @@
                                             <constraint firstAttribute="height" constant="56" id="5yW-5O-AOS"/>
                                         </constraints>
                                     </view>
+                                    <segmentedControl opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="top" segmentControlStyle="plain" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="zKf-Ii-55Q">
+                                        <rect key="frame" x="16" y="64" width="343" height="32"/>
+                                        <segments>
+                                            <segment title="All"/>
+                                            <segment title="Favorites"/>
+                                        </segments>
+                                        <connections>
+                                            <action selector="didChangeFilter:" destination="cGq-gd-62K" eventType="valueChanged" id="bSf-Hb-Gty"/>
+                                        </connections>
+                                    </segmentedControl>
                                     <containerView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xZl-fe-PlP">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="611"/>
+                                        <rect key="frame" x="0.0" y="104" width="375" height="563"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </containerView>
                                 </subviews>
@@ -51,12 +61,15 @@
                                     <constraint firstAttribute="trailing" secondItem="dgg-tT-8fn" secondAttribute="trailing" id="7iM-kZ-QOH"/>
                                     <constraint firstAttribute="trailing" secondItem="Pfu-J9-aom" secondAttribute="trailing" id="BYM-9K-qsU"/>
                                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="f6J-2l-iab" secondAttribute="trailing" constant="16" id="Gzt-QT-s9r"/>
-                                    <constraint firstItem="xZl-fe-PlP" firstAttribute="top" secondItem="Pfu-J9-aom" secondAttribute="bottom" id="Vl5-tL-Xgz"/>
+                                    <constraint firstItem="xZl-fe-PlP" firstAttribute="top" secondItem="zKf-Ii-55Q" secondAttribute="bottom" constant="8" id="Vl5-tL-Xgz"/>
                                     <constraint firstItem="xZl-fe-PlP" firstAttribute="leading" secondItem="URz-eU-usl" secondAttribute="leading" id="VyA-Qu-Qy8"/>
                                     <constraint firstItem="Pfu-J9-aom" firstAttribute="top" secondItem="URz-eU-usl" secondAttribute="top" id="bcB-KD-erM"/>
                                     <constraint firstAttribute="bottom" secondItem="xZl-fe-PlP" secondAttribute="bottom" id="f7N-Yl-gLn"/>
                                     <constraint firstAttribute="trailing" secondItem="xZl-fe-PlP" secondAttribute="trailing" id="gq6-bs-Mly"/>
-                                    <constraint firstItem="dgg-tT-8fn" firstAttribute="top" secondItem="Pfu-J9-aom" secondAttribute="bottom" id="qDC-ON-LYl"/>
+                                    <constraint firstItem="zKf-Ii-55Q" firstAttribute="leading" secondItem="URz-eU-usl" secondAttribute="leading" constant="16" id="lVA-SG-uQd"/>
+                                    <constraint firstAttribute="trailing" secondItem="zKf-Ii-55Q" secondAttribute="trailing" constant="16" id="nwr-C7-yH5"/>
+                                    <constraint firstItem="zKf-Ii-55Q" firstAttribute="top" secondItem="Pfu-J9-aom" secondAttribute="bottom" constant="8" id="pPx-xU-GrJ"/>
+                                    <constraint firstItem="dgg-tT-8fn" firstAttribute="top" secondItem="zKf-Ii-55Q" secondAttribute="bottom" constant="8" id="qDC-ON-LYl"/>
                                     <constraint firstItem="f6J-2l-iab" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="URz-eU-usl" secondAttribute="leading" constant="16" id="quB-06-0Nr"/>
                                     <constraint firstItem="f6J-2l-iab" firstAttribute="centerX" secondItem="URz-eU-usl" secondAttribute="centerX" id="qye-G4-IZj"/>
                                     <constraint firstItem="f6J-2l-iab" firstAttribute="centerY" secondItem="URz-eU-usl" secondAttribute="centerY" constant="28" id="vKu-65-f4Y"/>
@@ -75,6 +88,7 @@
                     <connections>
                         <outlet property="contentView" destination="URz-eU-usl" id="uqN-yv-Ufo"/>
                         <outlet property="emptyDataLabel" destination="f6J-2l-iab" id="7eT-UL-qzF"/>
+                        <outlet property="filterSegmentedControl" destination="zKf-Ii-55Q" id="jGV-oa-c9U"/>
                         <outlet property="moviesListContainer" destination="dgg-tT-8fn" id="RcZ-CD-wCq"/>
                         <outlet property="searchBarContainer" destination="Pfu-J9-aom" id="BmD-lq-IZN"/>
                         <outlet property="suggestionsListContainer" destination="xZl-fe-PlP" id="6hU-xB-rVM"/>
@@ -127,10 +141,23 @@
                                                 <constraint firstAttribute="width" constant="80" id="qEt-gB-S4w"/>
                                             </constraints>
                                         </imageView>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="chY-s1-pgz">
+                                            <rect key="frame" x="227" y="11" width="44" height="44"/>
+                                            <accessibility key="accessibilityConfiguration" label="Favorite"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="44" id="8lW-aS-cv9"/>
+                                                <constraint firstAttribute="width" constant="44" id="x0J-tu-K40"/>
+                                            </constraints>
+                                            <state key="normal" title="☆"/>
+                                            <connections>
+                                                <action selector="didTapFavoriteButton:" destination="uUP-Ga-BsY" eventType="touchUpInside" id="aCt-sB-HQE"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <constraints>
                                         <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="yeA-yy-sWx" secondAttribute="bottom" constant="11" id="CBD-py-SWw"/>
                                         <constraint firstItem="4Z1-DO-pfb" firstAttribute="leading" secondItem="we8-9y-ZfZ" secondAttribute="leading" id="DeM-eN-2gT"/>
+                                        <constraint firstItem="chY-s1-pgz" firstAttribute="top" secondItem="OzQ-03-uhC" secondAttribute="top" constant="11" id="EW5-hx-jJd"/>
                                         <constraint firstItem="gc0-V9-HRA" firstAttribute="top" secondItem="OzQ-03-uhC" secondAttribute="topMargin" id="Ei4-8m-USb"/>
                                         <constraint firstItem="gc0-V9-HRA" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="4Z1-DO-pfb" secondAttribute="trailing" constant="8" id="If5-B2-yDd"/>
                                         <constraint firstItem="gc0-V9-HRA" firstAttribute="trailing" secondItem="OzQ-03-uhC" secondAttribute="trailingMargin" id="LEQ-TK-k21"/>
@@ -138,7 +165,9 @@
                                         <constraint firstItem="4Z1-DO-pfb" firstAttribute="top" secondItem="we8-9y-ZfZ" secondAttribute="bottom" constant="3.5" id="Uf3-N1-G6V"/>
                                         <constraint firstItem="yeA-yy-sWx" firstAttribute="leading" secondItem="we8-9y-ZfZ" secondAttribute="leading" id="V7H-mQ-iCw"/>
                                         <constraint firstAttribute="bottomMargin" relation="greaterThanOrEqual" secondItem="gc0-V9-HRA" secondAttribute="bottom" priority="999" constant="9" id="X2Z-FY-fjL"/>
+                                        <constraint firstItem="gc0-V9-HRA" firstAttribute="leading" secondItem="chY-s1-pgz" secondAttribute="trailing" constant="8" id="Y2j-8u-vKf"/>
                                         <constraint firstItem="gc0-V9-HRA" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="yeA-yy-sWx" secondAttribute="trailing" constant="8" id="cbP-rC-azG"/>
+                                        <constraint firstItem="chY-s1-pgz" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="we8-9y-ZfZ" secondAttribute="trailing" constant="8" id="dCt-mc-VX5"/>
                                         <constraint firstItem="we8-9y-ZfZ" firstAttribute="leading" secondItem="OzQ-03-uhC" secondAttribute="leadingMargin" id="dmO-KZ-qcT"/>
                                         <constraint firstItem="we8-9y-ZfZ" firstAttribute="top" secondItem="OzQ-03-uhC" secondAttribute="top" constant="11" id="vBj-AF-CTE"/>
                                         <constraint firstItem="yeA-yy-sWx" firstAttribute="top" secondItem="4Z1-DO-pfb" secondAttribute="bottom" constant="6" id="wvj-a3-OK7"/>
@@ -147,6 +176,7 @@
                                 <inset key="separatorInset" minX="8" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <connections>
                                     <outlet property="dateLabel" destination="4Z1-DO-pfb" id="gaN-gB-Pr8"/>
+                                    <outlet property="favoriteButton" destination="chY-s1-pgz" id="rTa-WE-zGL"/>
                                     <outlet property="overviewLabel" destination="yeA-yy-sWx" id="jeg-Ff-0Tf"/>
                                     <outlet property="posterImageView" destination="gc0-V9-HRA" id="5E2-QU-G7r"/>
                                     <outlet property="titleLabel" destination="we8-9y-ZfZ" id="JCo-dL-MCT"/>

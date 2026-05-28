@@ -14,3 +14,10 @@
 "No internet connection" = "No internet connection";
 "Failed loading movies" = "Failed loading movies";
 "Search Movies" = "Search Movies";
+"All" = "All";
+"Favorites" = "Favorites";
+"Favorite" = "Favorite";
+"Add %@ to favorites" = "Add %@ to favorites";
+"Remove %@ from favorites" = "Remove %@ from favorites";
+"Selected" = "Selected";
+"Not Selected" = "Not Selected";

@@ -6,6 +6,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     @IBOutlet private var moviesListContainer: UIView!
     @IBOutlet private(set) var suggestionsListContainer: UIView!
     @IBOutlet private var searchBarContainer: UIView!
+    @IBOutlet private var filterSegmentedControl: UISegmentedControl!
     @IBOutlet private var emptyDataLabel: UILabel!
     
     private var viewModel: MoviesListViewModel!
@@ -39,6 +40,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         viewModel.loading.observe(on: self) { [weak self] in self?.updateLoading($0) }
         viewModel.query.observe(on: self) { [weak self] in self?.updateSearchQuery($0) }
         viewModel.error.observe(on: self) { [weak self] in self?.showError($0) }
+        viewModel.filterMode.observe(on: self) { [weak self] in self?.updateFilterMode($0) }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -60,6 +62,8 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     private func setupViews() {
         title = viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle
+        filterSegmentedControl.setTitle(NSLocalizedString("All", comment: ""), forSegmentAt: 0)
+        filterSegmentedControl.setTitle(NSLocalizedString("Favorites", comment: ""), forSegmentAt: 1)
         setupSearchController()
     }
 
@@ -103,9 +107,17 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         searchController.searchBar.text = query
     }
 
+    private func updateFilterMode(_ filterMode: MoviesListViewModelFilterMode) {
+        filterSegmentedControl.selectedSegmentIndex = filterMode == .favorites ? 1 : 0
+    }
+
     private func showError(_ error: String) {
         guard !error.isEmpty else { return }
         showAlert(title: viewModel.errorTitle, message: error)
+    }
+
+    @IBAction private func didChangeFilter(_ sender: UISegmentedControl) {
+        viewModel.didToggleFavoritesFilter()
     }
 }
 

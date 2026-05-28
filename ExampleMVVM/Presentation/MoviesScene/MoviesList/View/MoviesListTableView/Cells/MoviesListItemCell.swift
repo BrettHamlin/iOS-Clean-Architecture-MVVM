@@ -9,11 +9,18 @@ final class MoviesListItemCell: UITableViewCell {
     @IBOutlet private var dateLabel: UILabel!
     @IBOutlet private var overviewLabel: UILabel!
     @IBOutlet private var posterImageView: UIImageView!
+    @IBOutlet private var favoriteButton: UIButton!
 
+    var onFavoriteTap: (() -> Void)?
     private var viewModel: MoviesListItemViewModel!
     private var posterImagesRepository: PosterImagesRepository?
     private var imageLoadTask: Cancellable? { willSet { imageLoadTask?.cancel() } }
     private let mainQueue: DispatchQueueType = DispatchQueue.main
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        configureDefaultFavoriteButton()
+    }
 
     func fill(
         with viewModel: MoviesListItemViewModel,
@@ -25,7 +32,44 @@ final class MoviesListItemCell: UITableViewCell {
         titleLabel.text = viewModel.title
         dateLabel.text = viewModel.releaseDate
         overviewLabel.text = viewModel.overview
+        updateFavoriteButton()
         updatePosterImage(width: Int(posterImageView.imageSizeAfterAspectFit.scaledSize.width))
+    }
+
+    @IBAction private func didTapFavoriteButton(_ sender: UIButton) {
+        onFavoriteTap?()
+    }
+
+    private func configureDefaultFavoriteButton() {
+        favoriteButton.accessibilityLabel = NSLocalizedString("Favorite", comment: "")
+        if #available(iOS 13.0, *) {
+            favoriteButton.setImage(UIImage(systemName: "star"), for: .normal)
+            favoriteButton.setTitle(nil, for: .normal)
+        } else {
+            favoriteButton.setTitle("☆", for: .normal)
+        }
+    }
+
+    private func updateFavoriteButton() {
+        favoriteButton.isSelected = viewModel.isFavorite
+        let accessibilityLabelFormat = viewModel.isFavorite ?
+            NSLocalizedString("Remove %@ from favorites", comment: "") :
+            NSLocalizedString("Add %@ to favorites", comment: "")
+        favoriteButton.accessibilityLabel = String(format: accessibilityLabelFormat, viewModel.title)
+        favoriteButton.accessibilityValue = viewModel.isFavorite ?
+            NSLocalizedString("Selected", comment: "") :
+            NSLocalizedString("Not Selected", comment: "")
+        favoriteButton.accessibilityTraits = .button
+        if viewModel.isFavorite {
+            favoriteButton.accessibilityTraits.insert(.selected)
+        }
+        if #available(iOS 13.0, *) {
+            let imageName = viewModel.isFavorite ? "star.fill" : "star"
+            favoriteButton.setImage(UIImage(systemName: imageName), for: .normal)
+            favoriteButton.setTitle(nil, for: .normal)
+        } else {
+            favoriteButton.setTitle(viewModel.isFavorite ? "★" : "☆", for: .normal)
+        }
     }
 
     private func updatePosterImage(width: Int) {
