@@ -7,6 +7,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     @IBOutlet private(set) var suggestionsListContainer: UIView!
     @IBOutlet private var searchBarContainer: UIView!
     @IBOutlet private var emptyDataLabel: UILabel!
+    @IBOutlet private var filterSegmentedControl: UISegmentedControl!
     
     private var viewModel: MoviesListViewModel!
     private var posterImagesRepository: PosterImagesRepository?
@@ -39,6 +40,7 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         viewModel.loading.observe(on: self) { [weak self] in self?.updateLoading($0) }
         viewModel.query.observe(on: self) { [weak self] in self?.updateSearchQuery($0) }
         viewModel.error.observe(on: self) { [weak self] in self?.showError($0) }
+        viewModel.filterMode.observe(on: self) { [weak self] in self?.updateFilterMode($0) }
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -60,6 +62,9 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
     private func setupViews() {
         title = viewModel.screenTitle
         emptyDataLabel.text = viewModel.emptyDataTitle
+        filterSegmentedControl.setTitle(NSLocalizedString("All", comment: ""), forSegmentAt: 0)
+        filterSegmentedControl.setTitle(NSLocalizedString("Favorites", comment: ""), forSegmentAt: 1)
+        filterSegmentedControl.accessibilityIdentifier = AccessibilityIdentifier.moviesListFilterControl
         setupSearchController()
     }
 
@@ -103,9 +108,27 @@ final class MoviesListViewController: UIViewController, StoryboardInstantiable, 
         searchController.searchBar.text = query
     }
 
+    private func updateFilterMode(_ filterMode: MoviesListFilterMode) {
+        switch filterMode {
+        case .all:
+            filterSegmentedControl.selectedSegmentIndex = 0
+        case .favorites:
+            filterSegmentedControl.selectedSegmentIndex = 1
+        }
+    }
+
     private func showError(_ error: String) {
         guard !error.isEmpty else { return }
         showAlert(title: viewModel.errorTitle, message: error)
+    }
+
+    @IBAction private func filterSegmentedControlValueChanged(_ sender: UISegmentedControl) {
+        switch sender.selectedSegmentIndex {
+        case 1:
+            viewModel.didSetFilter(.favorites)
+        default:
+            viewModel.didSetFilter(.all)
+        }
     }
 }
 

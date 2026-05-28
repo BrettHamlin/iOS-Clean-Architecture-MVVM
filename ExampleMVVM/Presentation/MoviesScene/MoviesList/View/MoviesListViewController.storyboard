@@ -20,7 +20,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <subviews>
                                     <containerView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dgg-tT-8fn">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="611"/>
+                                        <rect key="frame" x="0.0" y="96" width="375" height="571"/>
                                         <connections>
                                             <segue destination="dtm-sz-Zlw" kind="embed" identifier="MoviesListTableViewController" id="YTl-yh-Ilp"/>
                                         </connections>
@@ -38,8 +38,18 @@
                                             <constraint firstAttribute="height" constant="56" id="5yW-5O-AOS"/>
                                         </constraints>
                                     </view>
+                                    <segmentedControl opaque="NO" contentMode="scaleToFill" selectedSegmentIndex="0" translatesAutoresizingMaskIntoConstraints="NO" id="a9u-IW-35V">
+                                        <rect key="frame" x="16" y="60" width="343" height="32"/>
+                                        <segments>
+                                            <segment title="All"/>
+                                            <segment title="Favorites"/>
+                                        </segments>
+                                        <connections>
+                                            <action selector="filterSegmentedControlValueChanged:" destination="cGq-gd-62K" eventType="valueChanged" id="n3V-w8-04A"/>
+                                        </connections>
+                                    </segmentedControl>
                                     <containerView hidden="YES" opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xZl-fe-PlP">
-                                        <rect key="frame" x="0.0" y="56" width="375" height="611"/>
+                                        <rect key="frame" x="0.0" y="96" width="375" height="571"/>
                                         <color key="backgroundColor" white="0.0" alpha="0.20000000000000001" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     </containerView>
                                 </subviews>
@@ -49,15 +59,18 @@
                                     <constraint firstAttribute="bottom" secondItem="dgg-tT-8fn" secondAttribute="bottom" id="6vI-OL-PSs"/>
                                     <constraint firstItem="Pfu-J9-aom" firstAttribute="leading" secondItem="URz-eU-usl" secondAttribute="leading" id="7Y3-Jt-YIK"/>
                                     <constraint firstAttribute="trailing" secondItem="dgg-tT-8fn" secondAttribute="trailing" id="7iM-kZ-QOH"/>
+                                    <constraint firstItem="a9u-IW-35V" firstAttribute="top" secondItem="Pfu-J9-aom" secondAttribute="bottom" constant="4" id="8pF-hp-No5"/>
                                     <constraint firstAttribute="trailing" secondItem="Pfu-J9-aom" secondAttribute="trailing" id="BYM-9K-qsU"/>
+                                    <constraint firstAttribute="trailing" secondItem="a9u-IW-35V" secondAttribute="trailing" constant="16" id="G8d-bg-xzc"/>
                                     <constraint firstAttribute="trailing" relation="greaterThanOrEqual" secondItem="f6J-2l-iab" secondAttribute="trailing" constant="16" id="Gzt-QT-s9r"/>
-                                    <constraint firstItem="xZl-fe-PlP" firstAttribute="top" secondItem="Pfu-J9-aom" secondAttribute="bottom" id="Vl5-tL-Xgz"/>
                                     <constraint firstItem="xZl-fe-PlP" firstAttribute="leading" secondItem="URz-eU-usl" secondAttribute="leading" id="VyA-Qu-Qy8"/>
                                     <constraint firstItem="Pfu-J9-aom" firstAttribute="top" secondItem="URz-eU-usl" secondAttribute="top" id="bcB-KD-erM"/>
                                     <constraint firstAttribute="bottom" secondItem="xZl-fe-PlP" secondAttribute="bottom" id="f7N-Yl-gLn"/>
                                     <constraint firstAttribute="trailing" secondItem="xZl-fe-PlP" secondAttribute="trailing" id="gq6-bs-Mly"/>
-                                    <constraint firstItem="dgg-tT-8fn" firstAttribute="top" secondItem="Pfu-J9-aom" secondAttribute="bottom" id="qDC-ON-LYl"/>
+                                    <constraint firstItem="a9u-IW-35V" firstAttribute="leading" secondItem="URz-eU-usl" secondAttribute="leading" constant="16" id="jix-WZ-e6H"/>
                                     <constraint firstItem="f6J-2l-iab" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="URz-eU-usl" secondAttribute="leading" constant="16" id="quB-06-0Nr"/>
+                                    <constraint firstItem="dgg-tT-8fn" firstAttribute="top" secondItem="a9u-IW-35V" secondAttribute="bottom" constant="4" id="rWp-I9-xc6"/>
+                                    <constraint firstItem="xZl-fe-PlP" firstAttribute="top" secondItem="a9u-IW-35V" secondAttribute="bottom" constant="4" id="wmE-k9-MFe"/>
                                     <constraint firstItem="f6J-2l-iab" firstAttribute="centerX" secondItem="URz-eU-usl" secondAttribute="centerX" id="qye-G4-IZj"/>
                                     <constraint firstItem="f6J-2l-iab" firstAttribute="centerY" secondItem="URz-eU-usl" secondAttribute="centerY" constant="28" id="vKu-65-f4Y"/>
                                 </constraints>
@@ -75,6 +88,7 @@
                     <connections>
                         <outlet property="contentView" destination="URz-eU-usl" id="uqN-yv-Ufo"/>
                         <outlet property="emptyDataLabel" destination="f6J-2l-iab" id="7eT-UL-qzF"/>
+                        <outlet property="filterSegmentedControl" destination="a9u-IW-35V" id="SFV-D3-r1y"/>
                         <outlet property="moviesListContainer" destination="dgg-tT-8fn" id="RcZ-CD-wCq"/>
                         <outlet property="searchBarContainer" destination="Pfu-J9-aom" id="BmD-lq-IZN"/>
                         <outlet property="suggestionsListContainer" destination="xZl-fe-PlP" id="6hU-xB-rVM"/>
@@ -89,7 +103,7 @@
             <objects>
                 <tableViewController useStoryboardIdentifierAsRestorationIdentifier="YES" id="dtm-sz-Zlw" customClass="MoviesListTableViewController" customModule="ExampleMVVM" customModuleProvider="target" sceneMemberID="viewController">
                     <tableView key="view" clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsVerticalScrollIndicator="NO" dataMode="prototypes" style="plain" separatorStyle="default" rowHeight="140" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" id="C0X-iN-eQJ">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="611"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="571"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <color key="separatorColor" white="0.66666666666666663" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -127,16 +141,30 @@
                                                 <constraint firstAttribute="width" constant="80" id="qEt-gB-S4w"/>
                                             </constraints>
                                         </imageView>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="WzG-qO-Qav">
+                                            <rect key="frame" x="205" y="11" width="66" height="44"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" relation="greaterThanOrEqual" constant="44" id="6eS-wG-KrG"/>
+                                            </constraints>
+                                            <state key="normal" title="Favorite"/>
+                                            <state key="selected" title="Favorited"/>
+                                            <connections>
+                                                <action selector="favoriteButtonTapped:" destination="uUP-Ga-BsY" eventType="touchUpInside" id="gDP-Ae-640"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <constraints>
                                         <constraint firstAttribute="bottom" relation="greaterThanOrEqual" secondItem="yeA-yy-sWx" secondAttribute="bottom" constant="11" id="CBD-py-SWw"/>
                                         <constraint firstItem="4Z1-DO-pfb" firstAttribute="leading" secondItem="we8-9y-ZfZ" secondAttribute="leading" id="DeM-eN-2gT"/>
                                         <constraint firstItem="gc0-V9-HRA" firstAttribute="top" secondItem="OzQ-03-uhC" secondAttribute="topMargin" id="Ei4-8m-USb"/>
+                                        <constraint firstItem="WzG-qO-Qav" firstAttribute="trailing" secondItem="gc0-V9-HRA" secondAttribute="leading" constant="-8" id="HXR-td-aGA"/>
                                         <constraint firstItem="gc0-V9-HRA" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="4Z1-DO-pfb" secondAttribute="trailing" constant="8" id="If5-B2-yDd"/>
                                         <constraint firstItem="gc0-V9-HRA" firstAttribute="trailing" secondItem="OzQ-03-uhC" secondAttribute="trailingMargin" id="LEQ-TK-k21"/>
                                         <constraint firstItem="gc0-V9-HRA" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="we8-9y-ZfZ" secondAttribute="trailing" constant="8" id="Udg-mR-BZC"/>
                                         <constraint firstItem="4Z1-DO-pfb" firstAttribute="top" secondItem="we8-9y-ZfZ" secondAttribute="bottom" constant="3.5" id="Uf3-N1-G6V"/>
                                         <constraint firstItem="yeA-yy-sWx" firstAttribute="leading" secondItem="we8-9y-ZfZ" secondAttribute="leading" id="V7H-mQ-iCw"/>
+                                        <constraint firstItem="WzG-qO-Qav" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="we8-9y-ZfZ" secondAttribute="trailing" constant="8" id="Vcz-lj-Jgi"/>
+                                        <constraint firstItem="WzG-qO-Qav" firstAttribute="top" secondItem="OzQ-03-uhC" secondAttribute="top" constant="11" id="WbS-PY-RBw"/>
                                         <constraint firstAttribute="bottomMargin" relation="greaterThanOrEqual" secondItem="gc0-V9-HRA" secondAttribute="bottom" priority="999" constant="9" id="X2Z-FY-fjL"/>
                                         <constraint firstItem="gc0-V9-HRA" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="yeA-yy-sWx" secondAttribute="trailing" constant="8" id="cbP-rC-azG"/>
                                         <constraint firstItem="we8-9y-ZfZ" firstAttribute="leading" secondItem="OzQ-03-uhC" secondAttribute="leadingMargin" id="dmO-KZ-qcT"/>
@@ -147,6 +175,7 @@
                                 <inset key="separatorInset" minX="8" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 <connections>
                                     <outlet property="dateLabel" destination="4Z1-DO-pfb" id="gaN-gB-Pr8"/>
+                                    <outlet property="favoriteButton" destination="WzG-qO-Qav" id="h6T-pY-idm"/>
                                     <outlet property="overviewLabel" destination="yeA-yy-sWx" id="jeg-Ff-0Tf"/>
                                     <outlet property="posterImageView" destination="gc0-V9-HRA" id="5E2-QU-G7r"/>
                                     <outlet property="titleLabel" destination="we8-9y-ZfZ" id="JCo-dL-MCT"/>

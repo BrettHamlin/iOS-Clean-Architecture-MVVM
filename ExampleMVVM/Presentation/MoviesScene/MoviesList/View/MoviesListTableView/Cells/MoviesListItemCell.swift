@@ -9,7 +9,9 @@ final class MoviesListItemCell: UITableViewCell {
     @IBOutlet private var dateLabel: UILabel!
     @IBOutlet private var overviewLabel: UILabel!
     @IBOutlet private var posterImageView: UIImageView!
+    @IBOutlet private var favoriteButton: UIButton!
 
+    var onFavoriteTapped: (() -> Void)?
     private var viewModel: MoviesListItemViewModel!
     private var posterImagesRepository: PosterImagesRepository?
     private var imageLoadTask: Cancellable? { willSet { imageLoadTask?.cancel() } }
@@ -25,7 +27,33 @@ final class MoviesListItemCell: UITableViewCell {
         titleLabel.text = viewModel.title
         dateLabel.text = viewModel.releaseDate
         overviewLabel.text = viewModel.overview
+        favoriteButton.isSelected = viewModel.isFavorite
+        favoriteButton.accessibilityIdentifier = AccessibilityIdentifier.movieFavoriteButton
+        favoriteButton.accessibilityLabel = String(
+            format: NSLocalizedString(viewModel.isFavorite ? "Remove %@ from favorites" : "Add %@ to favorites", comment: ""),
+            viewModel.title
+        )
+        favoriteButton.accessibilityValue = NSLocalizedString(viewModel.isFavorite ? "Favorited" : "Not favorited", comment: "")
         updatePosterImage(width: Int(posterImageView.imageSizeAfterAspectFit.scaledSize.width))
+    }
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        favoriteButton.setTitle(NSLocalizedString("Favorite", comment: ""), for: .normal)
+        favoriteButton.setTitle(NSLocalizedString("Favorited", comment: ""), for: .selected)
+        favoriteButton.setTitleColor(.lightGray, for: .normal)
+        favoriteButton.setTitleColor(.orange, for: .selected)
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onFavoriteTapped = nil
+        imageLoadTask = nil
+        posterImageView.image = nil
+    }
+
+    @IBAction private func favoriteButtonTapped(_ sender: UIButton) {
+        onFavoriteTapped?()
     }
 
     private func updatePosterImage(width: Int) {

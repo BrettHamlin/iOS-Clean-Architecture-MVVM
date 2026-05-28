@@ -13,6 +13,11 @@ enum MoviesListViewModelLoading {
     case nextPage
 }
 
+enum MoviesListFilterMode: Equatable {
+    case all
+    case favorites
+}
+
 protocol MoviesListViewModelInput {
     func viewDidLoad()
     func didLoadNextPage()
@@ -21,10 +26,14 @@ protocol MoviesListViewModelInput {
     func showQueriesSuggestions()
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
+    func didToggleFavorite(at index: Int)
+    func didToggleFilter()
+    func didSetFilter(_ filterMode: MoviesListFilterMode)
 }
 
 protocol MoviesListViewModelOutput {
     var items: Observable<[MoviesListItemViewModel]> { get } /// Also we can calculate view model items on demand:  https://github.com/kudoleh/iOS-Clean-Architecture-MVVM/pull/10/files
+    var filterMode: Observable<MoviesListFilterMode> { get }
     var loading: Observable<MoviesListViewModelLoading?> { get }
     var query: Observable<String> { get }
     var error: Observable<String> { get }
@@ -48,12 +57,14 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
     var nextPage: Int { hasMorePages ? currentPage + 1 : currentPage }
 
     private var pages: [MoviesPage] = []
+    var favoriteMovieIDs: Set<Movie.Identifier> = []
     private var moviesLoadTask: Cancellable? { willSet { moviesLoadTask?.cancel() } }
     private let mainQueue: DispatchQueueType
 
     // MARK: - OUTPUT
 
     let items: Observable<[MoviesListItemViewModel]> = Observable([])
+    let filterMode: Observable<MoviesListFilterMode> = Observable(.all)
     let loading: Observable<MoviesListViewModelLoading?> = Observable(.none)
     let query: Observable<String> = Observable("")
     let error: Observable<String> = Observable("")
@@ -85,14 +96,29 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
             .filter { $0.page != moviesPage.page }
             + [moviesPage]
 
-        items.value = pages.movies.map(MoviesListItemViewModel.init)
+        updateItems()
     }
 
     private func resetPages() {
         currentPage = 0
         totalPageCount = 1
         pages.removeAll()
-        items.value.removeAll()
+        updateItems()
+    }
+
+    private func updateItems() {
+        items.value = filteredMovies().map {
+            MoviesListItemViewModel(movie: $0, isFavorite: favoriteMovieIDs.contains($0.id))
+        }
+    }
+
+    private func filteredMovies() -> [Movie] {
+        switch filterMode.value {
+        case .all:
+            return pages.movies
+        case .favorites:
+            return pages.movies.filter { favoriteMovieIDs.contains($0.id) }
+        }
     }
 
     private func load(movieQuery: MovieQuery, loading: MoviesListViewModelLoading) {
@@ -161,7 +187,30 @@ extension DefaultMoviesListViewModel {
     }
 
     func didSelectItem(at index: Int) {
-        actions?.showMovieDetails(pages.movies[index])
+        let movies = filteredMovies()
+        guard movies.indices.contains(index) else { return }
+        actions?.showMovieDetails(movies[index])
+    }
+
+    func didToggleFavorite(at index: Int) {
+        let movies = filteredMovies()
+        guard movies.indices.contains(index) else { return }
+        let movieID = movies[index].id
+        if favoriteMovieIDs.contains(movieID) {
+            favoriteMovieIDs.remove(movieID)
+        } else {
+            favoriteMovieIDs.insert(movieID)
+        }
+        updateItems()
+    }
+
+    func didToggleFilter() {
+        didSetFilter(filterMode.value == .all ? .favorites : .all)
+    }
+
+    func didSetFilter(_ filterMode: MoviesListFilterMode) {
+        self.filterMode.value = filterMode
+        updateItems()
     }
 }
 
