@@ -14,3 +14,16 @@
 "No internet connection" = "No internet connection";
 "Failed loading movies" = "Failed loading movies";
 "Search Movies" = "Search Movies";
+"All" = "All";
+"Favorites" = "Favorites";
+"Favorite" = "Favorite";
+"Favorited" = "Favorited";
+"Not favorited" = "Not favorited";
+"Toggle favorite" = "Toggle favorite";
+"favorite_button_accessibility_label" = "Toggle favorite";
+"Add to favorites" = "Add to favorites";
+"Remove from favorites" = "Remove from favorites";
+"Add movie to favorites" = "Add %@ to favorites";
+"Remove movie from favorites" = "Remove %@ from favorites";
+"Movie filter" = "Movie filter";
+"Filters the movie search results" = "Filters the movie search results";
