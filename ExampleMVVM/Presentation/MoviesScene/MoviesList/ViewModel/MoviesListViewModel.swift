@@ -21,6 +21,8 @@ protocol MoviesListViewModelInput {
     func showQueriesSuggestions()
     func closeQueriesSuggestions()
     func didSelectItem(at index: Int)
+    func didToggleFavorite(at index: Int)
+    func didToggleFavoritesFilter()
 }
 
 protocol MoviesListViewModelOutput {
@@ -28,6 +30,7 @@ protocol MoviesListViewModelOutput {
     var loading: Observable<MoviesListViewModelLoading?> { get }
     var query: Observable<String> { get }
     var error: Observable<String> { get }
+    var favoriteFilterActive: Observable<Bool> { get }
     var isEmpty: Bool { get }
     var screenTitle: String { get }
     var emptyDataTitle: String { get }
@@ -48,6 +51,8 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
     var nextPage: Int { hasMorePages ? currentPage + 1 : currentPage }
 
     private var pages: [MoviesPage] = []
+    private var favoriteMovieIDs: Set<Movie.Identifier> = []
+    private var isFavoritesFilterActive = false
     private var moviesLoadTask: Cancellable? { willSet { moviesLoadTask?.cancel() } }
     private let mainQueue: DispatchQueueType
 
@@ -57,6 +62,7 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
     let loading: Observable<MoviesListViewModelLoading?> = Observable(.none)
     let query: Observable<String> = Observable("")
     let error: Observable<String> = Observable("")
+    let favoriteFilterActive: Observable<Bool> = Observable(false)
     var isEmpty: Bool { return items.value.isEmpty }
     let screenTitle = NSLocalizedString("Movies", comment: "")
     let emptyDataTitle = NSLocalizedString("Search results", comment: "")
@@ -85,7 +91,7 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
             .filter { $0.page != moviesPage.page }
             + [moviesPage]
 
-        items.value = pages.movies.map(MoviesListItemViewModel.init)
+        rebuildItems()
     }
 
     private func resetPages() {
@@ -93,6 +99,27 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
         totalPageCount = 1
         pages.removeAll()
         items.value.removeAll()
+    }
+
+    private var displayedMovies: [Movie] {
+        let movies = pages.movies
+        guard isFavoritesFilterActive else { return movies }
+        return movies.filter { favoriteMovieIDs.contains($0.id) }
+    }
+
+    private func rebuildItems() {
+        items.value = displayedMovies.map {
+            MoviesListItemViewModel(
+                movie: $0,
+                isFavorite: favoriteMovieIDs.contains($0.id)
+            )
+        }
+    }
+
+    private func deactivateFavoritesFilter() {
+        guard isFavoritesFilterActive else { return }
+        isFavoritesFilterActive = false
+        favoriteFilterActive.value = false
     }
 
     private func load(movieQuery: MovieQuery, loading: MoviesListViewModelLoading) {
@@ -126,6 +153,7 @@ final class DefaultMoviesListViewModel: MoviesListViewModel {
     }
 
     private func update(movieQuery: MovieQuery) {
+        deactivateFavoritesFilter()
         resetPages()
         load(movieQuery: movieQuery, loading: .fullScreen)
     }
@@ -138,7 +166,7 @@ extension DefaultMoviesListViewModel {
     func viewDidLoad() { }
 
     func didLoadNextPage() {
-        guard hasMorePages, loading.value == .none else { return }
+        guard !isFavoritesFilterActive, hasMorePages, loading.value == .none else { return }
         load(movieQuery: .init(query: query.value),
              loading: .nextPage)
     }
@@ -161,7 +189,24 @@ extension DefaultMoviesListViewModel {
     }
 
     func didSelectItem(at index: Int) {
-        actions?.showMovieDetails(pages.movies[index])
+        actions?.showMovieDetails(displayedMovies[index])
+    }
+
+    func didToggleFavorite(at index: Int) {
+        guard displayedMovies.indices.contains(index) else { return }
+        let movieID = displayedMovies[index].id
+        if favoriteMovieIDs.contains(movieID) {
+            favoriteMovieIDs.remove(movieID)
+        } else {
+            favoriteMovieIDs.insert(movieID)
+        }
+        rebuildItems()
+    }
+
+    func didToggleFavoritesFilter() {
+        isFavoritesFilterActive.toggle()
+        favoriteFilterActive.value = isFavoritesFilterActive
+        rebuildItems()
     }
 }
 

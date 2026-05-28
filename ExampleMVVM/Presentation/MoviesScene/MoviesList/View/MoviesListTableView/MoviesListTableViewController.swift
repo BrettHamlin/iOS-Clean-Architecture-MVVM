@@ -56,8 +56,16 @@ extension MoviesListTableViewController {
 
         cell.fill(with: viewModel.items.value[indexPath.row],
                   posterImagesRepository: posterImagesRepository)
+        cell.onFavoriteButtonTapped = { [weak self, weak cell, weak tableView] in
+            guard let self = self,
+                  let cell = cell,
+                  let tableView = tableView,
+                  let indexPath = tableView.indexPath(for: cell) else { return }
+            self.viewModel.didToggleFavorite(at: indexPath.row)
+        }
 
-        if indexPath.row == viewModel.items.value.count - 1 {
+        if indexPath.row == viewModel.items.value.count - 1,
+            !viewModel.favoriteFilterActive.value {
             viewModel.didLoadNextPage()
         }
 

@@ -9,11 +9,18 @@ final class MoviesListItemCell: UITableViewCell {
     @IBOutlet private var dateLabel: UILabel!
     @IBOutlet private var overviewLabel: UILabel!
     @IBOutlet private var posterImageView: UIImageView!
+    private(set) var favoriteButton = UIButton(type: .system)
 
     private var viewModel: MoviesListItemViewModel!
     private var posterImagesRepository: PosterImagesRepository?
     private var imageLoadTask: Cancellable? { willSet { imageLoadTask?.cancel() } }
     private let mainQueue: DispatchQueueType = DispatchQueue.main
+    var onFavoriteButtonTapped: (() -> Void)?
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+        setupFavoriteButton()
+    }
 
     func fill(
         with viewModel: MoviesListItemViewModel,
@@ -25,7 +32,40 @@ final class MoviesListItemCell: UITableViewCell {
         titleLabel.text = viewModel.title
         dateLabel.text = viewModel.releaseDate
         overviewLabel.text = viewModel.overview
+        updateFavoriteButton()
         updatePosterImage(width: Int(posterImageView.imageSizeAfterAspectFit.scaledSize.width))
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        onFavoriteButtonTapped = nil
+    }
+
+    private func setupFavoriteButton() {
+        favoriteButton.translatesAutoresizingMaskIntoConstraints = false
+        favoriteButton.addTarget(self, action: #selector(didTapFavoriteButton), for: .touchUpInside)
+        favoriteButton.accessibilityLabel = NSLocalizedString("Favorites", comment: "")
+        contentView.addSubview(favoriteButton)
+        NSLayoutConstraint.activate([
+            favoriteButton.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 8),
+            favoriteButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -8),
+            favoriteButton.widthAnchor.constraint(equalToConstant: 44),
+            favoriteButton.heightAnchor.constraint(equalToConstant: 44)
+        ])
+    }
+
+    private func updateFavoriteButton() {
+        if #available(iOS 13.0, *) {
+            favoriteButton.setImage(UIImage(systemName: viewModel.isFavorite ? "star.fill" : "star"), for: .normal)
+            favoriteButton.setTitle(nil, for: .normal)
+        } else {
+            favoriteButton.setImage(nil, for: .normal)
+            favoriteButton.setTitle(viewModel.isFavorite ? "★" : "☆", for: .normal)
+        }
+    }
+
+    @objc private func didTapFavoriteButton() {
+        onFavoriteButtonTapped?()
     }
 
     private func updatePosterImage(width: Int) {
