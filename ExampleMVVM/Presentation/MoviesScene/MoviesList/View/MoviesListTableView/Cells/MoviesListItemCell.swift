@@ -39,6 +39,8 @@ final class MoviesListItemCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
         onFavoriteButtonTapped = nil
+        favoriteButton.setImage(nil, for: .normal)
+        favoriteButton.setTitle(nil, for: .normal)
     }
 
     private func setupFavoriteButton() {
@@ -55,6 +57,9 @@ final class MoviesListItemCell: UITableViewCell {
     }
 
     private func updateFavoriteButton() {
+        favoriteButton.accessibilityValue = viewModel.isFavorite ?
+            NSLocalizedString("Favorites", comment: "") :
+            nil
         if #available(iOS 13.0, *) {
             favoriteButton.setImage(UIImage(systemName: viewModel.isFavorite ? "star.fill" : "star"), for: .normal)
             favoriteButton.setTitle(nil, for: .normal)

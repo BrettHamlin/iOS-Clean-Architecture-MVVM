@@ -230,6 +230,30 @@ class MoviesListViewModelTests: XCTestCase {
         XCTAssertEqual(selectedMovie?.id, "2")
     }
 
+    func test_whenFavoritesFilterActive_thenDidSelectUsesNonZeroDisplayedIndex() {
+        //harness:criterion=c-select-item-correct-movie-filter-active
+        var selectedMovie: Movie?
+        let page = MoviesPage(page: 1, totalPages: 1, movies: [
+            Movie.stub(id: "first-favorite", title: "first favorite"),
+            Movie.stub(id: "hidden", title: "hidden"),
+            Movie.stub(id: "second-favorite", title: "second favorite")
+        ])
+        let actions = MoviesListViewModelActions(
+            showMovieDetails: { selectedMovie = $0 },
+            showMovieQueriesSuggestions: { _ in },
+            closeMovieQueriesSuggestions: {}
+        )
+        let (viewModel, _) = makeViewModel(returning: page, actions: actions)
+        viewModel.didToggleFavorite(at: 0)
+        viewModel.didToggleFavorite(at: 2)
+        viewModel.didToggleFavoritesFilter()
+
+        viewModel.didSelectItem(at: 1)
+
+        XCTAssertEqual(viewModel.items.value.map(\.title), ["first favorite", "second favorite"])
+        XCTAssertEqual(selectedMovie?.id, "second-favorite")
+    }
+
     func test_whenFavoritesFilterActive_thenPaginationRequestsAreBlocked() {
         //harness:criterion=c-load-next-page-blocked-while-filter-active,c-last-row-pagination-guard-filter-active
         let (viewModel, searchMoviesUseCaseMock) = makeViewModel(returning: moviesPages[0])
